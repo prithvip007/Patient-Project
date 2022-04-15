@@ -12,12 +12,12 @@
       </div><br />
     @endif
 
-	<form method="post" action="{{ route('addPetient') }}">
+	<form method="post" action="{{ route('addPatient') }}">
 		@csrf
-		<label>Petient Name</label>
-		<input type="text" name="pet_name" value=""><br>
-		<label>Petient Type</label>
-		<select name="pet_type">
+		<label>Patient Name</label>
+		<input type="text" name="pat_name" value=""><br>
+		<label>Patient Type</label>
+		<select name="pat_type">
 			<option value="cat">Cat</option>
 			<option value="dog">Dog</option>
 			<option value="bird">Bird</option>
@@ -28,6 +28,6 @@
 		<input type="text" name="owner_addr" value=""><br>
 		<label>Owner Phone</label>
 		<input type="text" name="owner_phno" value=""><br>
-		<button type="submit">Add Petient</button>
+		<button type="submit">Add Patient</button>
 	</form>
 @endsection

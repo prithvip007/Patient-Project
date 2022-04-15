@@ -14,10 +14,10 @@
 
 	<form method="post" action="{{ route('addAppointment') }}">
 		@csrf
-		<label>Petient Name</label>
-		<select name="petient_id">
-			@foreach($petients as $petient)
-				<option value="{{ $petient->id }}">{{ $petient->pet_name }}</option>
+		<label>Patient Name</label>
+		<select name="patient_id">
+			@foreach($patients as $patient)
+				<option value="{{ $patient->id }}">{{ $patient->pat_name }}</option>
 			@endforeach
 		</select><br>
 		<label>Appointment Start Time</label>

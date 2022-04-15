@@ -12,5 +12,5 @@ class Appointment extends Model
      * @var string
      */
     protected $table = 'appointments';
-    protected $fillable = ['petient_id','start_time', 'end_time', 'desc','fees', 'fee_paid', 'currency'];
+    protected $fillable = ['patient_id','start_time', 'end_time', 'desc','fees', 'fee_paid', 'currency'];
 }

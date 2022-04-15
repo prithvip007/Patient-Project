@@ -13,7 +13,7 @@
     @endif
 	<form method="post" action="{{ route('editAppointment', ['id' => $appointment->id]) }}">
 		@csrf
-		<label>Petient Name : {{ $petient->pet_name }}</label><br>
+		<label>Patient Name : {{ $patient->pat_name }}</label><br>
 		<label>Appointment Start Time</label>
 		<input type="datetime-local" name="start_time" value="{{ date ('Y-m-d\TH:i:s', strtotime($appointment->start_time)) }}"><br>
 		<label>Appointment End Time</label>

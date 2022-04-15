@@ -4,23 +4,39 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Appointment;
-use App\Petient;
+use App\Patient;
 use Carbon\Carbon;
 
 class AppointmentController extends Controller
 {
+    // return All Appointments
     public function getAppointment(){
         $allAppointment = Appointment::all();
-        return response()->json(array('data' => $allAppointment));
+        if(!$allAppointment->isEmpty()){
+            return response()->json(array('data' => $allAppointment));
+        }else{
+            return response()->json(array('data' => 'Appointment not found'));
+        }
     }
-    public function getPetAppointment($pet_id){
-        $allAppointment = Appointment::where('petient_id',$pet_id)->get();
-        return response()->json(array('data' => $allAppointment));
+    // return Appointments of Perticular Patient
+    public function getPatAppointment($pat_id){
+        $allAppointment = Appointment::where('patient_id',$pat_id)->get();
+        if(!$allAppointment->isEmpty()){
+            return response()->json(array('data' => $allAppointment));
+        }else{
+            return response()->json(array('data' => 'Appointment not found'));
+        }
     }
-    public function getBalance($pet_id){
-        $balance = Appointment::where([['petient_id',$pet_id],['fee_paid','0']])->sum('fees');
+
+    // return Panding Balance of Perticular Patient
+    public function getBalance($pat_id){
+        $balance = Appointment::where([['patient_id',$pat_id],['fee_paid','0']])->sum('fees');
+        
         return response()->json(array('data' => $balance));
+        
     }
+
+    // return Panding/collected Total Balance, Weekly, monthly Balance of Perticular Hospital
     public function getHsptlBalance($hsptl_id,$paid){
         //for current week
         $weekAmount = Appointment::whereBetween('start_time', [Carbon::now()->startOfWeek(), Carbon::now()->endOfWeek()])->where([['hospital_id',$hsptl_id],['fee_paid',$paid]])->get();
@@ -33,19 +49,35 @@ class AppointmentController extends Controller
                                     'current month bal' => $monthAmount,
                                 ));
     }
+
+    // return Appointments of Perticular Date
     public function getDateAppointment($date){
         $allDateAppointment = Appointment::whereDate('start_time', date('Y-m-d', strtotime($date)))->get();
-        return response()->json(array('data' => $allDateAppointment));
+        if(!$allDateAppointment->isEmpty()){
+            return response()->json(array('data' => $allDateAppointment));
+        }else{
+            return response()->json(array('data' => 'Appointment not found on this date'));
+        }
+        
     }
+
+    // return unpaid/paid Appointments
     public function getPaidAppointment($paid){
         $allPaidAppointment = Appointment::where('fee_paid', $paid)->get();
-        return response()->json(array('data' => $allPaidAppointment));
+        
+        if(!$allPaidAppointment->isEmpty()){
+            return response()->json(array('data' => $allPaidAppointment));
+        }else{
+            return response()->json(array('data' => 'Appointment not found'));
+        }
     }
+
+    // Add New Appointment
     public function addAppointment(Request $request){
-        $petients = Petient::all();
+        $patients = Patient::all();
         if($request->has('_token')){
             $validated = $request->validate([
-                'petient_id' => 'required',
+                'patient_id' => 'required',
                 'start_time' => 'required|max:255',
                 'end_time' => 'required',
                 'desc' => 'required',
@@ -54,7 +86,8 @@ class AppointmentController extends Controller
                 'currency' => 'required'
             ]);
             $appointment=new Appointment;  
-            $appointment->petient_id=$request->get('petient_id');  
+            $appointment->hospital_id='1';  
+            $appointment->patient_id=$request->get('patient_id');  
             $appointment->start_time=$request->get('start_time');  
             $appointment->end_time=$request->get('end_time');  
             $appointment->desc=$request->get('desc');  
@@ -64,13 +97,15 @@ class AppointmentController extends Controller
             $appointment->save();  
             return response()->json('Data is successfully saved');
         }else{
-            return view('addAppointment',compact('petients'));
+            return view('addAppointment',compact('patients'));
         }
     }
+
+    // update single Perticular Appointment
     public function editAppointment($id, Request $request){
         $appointment= Appointment::find($id);
-        $petient= Petient::find($appointment->petient_id);
         if($appointment){
+            $patient= Patient::find($appointment->patient_id);
             if($request->has('_token')){
                 $validated = $request->validate([
                     'start_time' => 'required|max:255',
@@ -90,15 +125,22 @@ class AppointmentController extends Controller
                 ]);
                 return response()->json('Data is successfully saved');
             }else{
-                return view('editAppointment',compact('appointment','petient'));
+                return view('editAppointment',compact('appointment','patient'));
             }
         }else{
             return response()->json('Appointment not found');
         }
     }
+
+    // Delete Appointment with id
     public function deleteAppointment($id)
     {
-        $appointment= Appointment::find($id)->delete();
-        return response()->json('Appointment deleted');
+        $appointment= Appointment::find($id);
+        if($appointment){
+            $appointment->delete();
+            return response()->json('Appointment deleted');
+        }else{
+            return response()->json(array('data' => 'Appointment not found'));
+        }
     }
 }
